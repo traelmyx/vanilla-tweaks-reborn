@@ -74,6 +74,8 @@ public final class ClientSmoke {
                         setup(mc);
                     }
                     if (ticks == 60) {
+                        mc.player.setXRot(28);
+                        mc.player.setYRot(mc.player.getDirection().toYRot());
                         mc.options.hideGui = true;
                     }
                     if (ticks == 140) {
@@ -106,17 +108,27 @@ public final class ClientSmoke {
             mc.screen);
     }
 
-    // a pedestal with a diamond sword on it, two blocks in front of the player
+    // three pedestals with things on them two blocks in front of the player, storage blocks behind
     private static void setup(Minecraft mc) {
         var server = mc.getSingleplayerServer();
         server.execute(() -> {
             var player = server.getPlayerList().getPlayers().get(0);
             var level = player.serverLevel();
-            player.setXRot(20);
-            BlockPos pos = player.blockPosition().relative(player.getDirection(), 2);
-            level.setBlockAndUpdate(pos, ForgeBlocks.PEDESTAL_BLOCK.get().defaultBlockState());
-            if (level.getBlockEntity(pos) instanceof PedestalBlockEntity be) {
-                be.inventory.setStackInSlot(0, new ItemStack(Items.DIAMOND_SWORD));
+            var facing = player.getDirection();
+            var side = facing.getClockWise();
+            BlockPos centre = player.blockPosition().relative(facing, 2);
+            ItemStack[] shown = {new ItemStack(Items.TRIDENT), new ItemStack(Items.DIAMOND_SWORD), new ItemStack(Items.TOTEM_OF_UNDYING)};
+            for (int i = -1; i <= 1; i++) {
+                BlockPos pos = centre.relative(side, i * 2);
+                level.setBlockAndUpdate(pos, ForgeBlocks.PEDESTAL_BLOCK.get().defaultBlockState());
+                if (level.getBlockEntity(pos) instanceof PedestalBlockEntity be) {
+                    be.inventory.setStackInSlot(0, shown[i + 1]);
+                }
+            }
+            BlockPos back = centre.relative(facing, 3);
+            var blocks = new net.minecraft.world.level.block.Block[] {ForgeBlocks.CHARCOAL_BLOCK.get(), ForgeBlocks.FLINT_BLOCK.get(), ForgeBlocks.SUGAR_BLOCK.get()};
+            for (int i = -1; i <= 1; i++) {
+                level.setBlockAndUpdate(back.relative(side, i), blocks[i + 1].defaultBlockState());
             }
         });
     }
