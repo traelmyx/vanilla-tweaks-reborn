@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OOO",
+    "O O",
+    "OOO"
+  ],
+  "key": {
+    "O": {
+      "tag": "minecraft:logs"
+    }
+  },
+  "result": {
+    "id": "minecraft:chest",
+    "count": 4
+  },
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:vanilla",
+      "object": "chest"
+    }
+  ]
+}

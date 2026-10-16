@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "vanillatweaks:blazing",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:homing",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:hops",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:nimble",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:siphon",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:veteran",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:vigor",
+      "required": false
+    }
+  ]
+}

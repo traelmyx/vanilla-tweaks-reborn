@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "vanillatweaks:sugar_block"
+    }
+  ],
+  "result": {
+    "id": "minecraft:sugar",
+    "count": 9
+  },
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:blocks",
+      "object": "storage_blocks"
+    }
+  ]
+}

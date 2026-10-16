@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:enchantment",
+      "object": "vigor"
+    }
+  ],
+  "description": {
+    "translate": "enchantment.vanillatweaks.vigor"
+  },
+  "supported_items": "#minecraft:enchantable/chest_armor",
+  "weight": 1,
+  "max_level": 3,
+  "min_cost": {
+    "base": 10,
+    "per_level_above_first": 10
+  },
+  "max_cost": {
+    "base": 61,
+    "per_level_above_first": 10
+  },
+  "anvil_cost": 8,
+  "slots": [
+    "chest"
+  ],
+  "effects": {}
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FFF",
+    "FFF",
+    "FFF"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:charcoal"
+    }
+  },
+  "result": {
+    "id": "vanillatweaks:charcoal_block"
+  },
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:blocks",
+      "object": "storage_blocks"
+    }
+  ]
+}

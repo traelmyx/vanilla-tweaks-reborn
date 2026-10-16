@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  I",
+    " P ",
+    "P  "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "result": {
+    "id": "minecraft:name_tag"
+  },
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:vanilla",
+      "object": "nametag"
+    }
+  ]
+}

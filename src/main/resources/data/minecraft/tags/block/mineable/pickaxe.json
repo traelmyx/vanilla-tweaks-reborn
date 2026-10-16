@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "vanillatweaks:charcoal_block",
+      "required": false
+    },
+    {
+      "id": "vanillatweaks:flint_block",
+      "required": false
+    }
+  ]
+}

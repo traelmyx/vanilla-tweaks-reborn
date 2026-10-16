@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "minecraft:egg"
+  },
+  "result": {
+    "id": "vanillatweaks:fried_egg"
+  },
+  "experience": 0.35,
+  "cookingtime": 100,
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:items",
+      "object": "fried_egg"
+    }
+  ]
+}
