@@ -8,12 +8,9 @@ import io.github.strikerrocker.vt.content.items.craftingpad.CraftingPadItem;
 import io.github.strikerrocker.vt.content.items.dynamite.DynamiteEntity;
 import io.github.strikerrocker.vt.content.items.dynamite.DynamiteItem;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
-import net.minecraft.core.Position;
-import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -22,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -114,18 +111,10 @@ public class ForgeItems extends ForgeFeature {
 
     @Override
     public void setup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() ->
-                DispenserBlock.registerBehavior(DYNAMITE.get(), new AbstractProjectileDispenseBehavior() {
-                    @Override
-                    protected Projectile getProjectile(Level level, Position position, ItemStack stack) {
-                        DynamiteEntity entity = new DynamiteEntity(DYNAMITE_TYPE.get(), level);
-                        entity.setPos(position.x(), position.y(), position.z());
-                        return entity;
-                    }
-                }));
+        event.enqueueWork(() -> DispenserBlock.registerProjectileBehavior(DYNAMITE.get()));
     }
 
-    @Mod.EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
     public static class ClientEvents {
         /**
          * Registers entity renderer

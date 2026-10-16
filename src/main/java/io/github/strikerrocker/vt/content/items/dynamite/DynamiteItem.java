@@ -1,5 +1,9 @@
 package io.github.strikerrocker.vt.content.items.dynamite;
 
+import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ProjectileItem;
 import io.github.strikerrocker.vt.content.items.ForgeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -13,7 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class DynamiteItem extends Item {
+public class DynamiteItem extends Item implements ProjectileItem {
     public DynamiteItem() {
         super(new Item.Properties().stacksTo(16));
     }
@@ -34,5 +38,12 @@ public class DynamiteItem extends Item {
         }
         playerIn.awardStat(Stats.ITEM_USED.get(this));
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
+    }
+
+    @Override
+    public Projectile asProjectile(Level level, Position position, ItemStack stack, Direction direction) {
+        DynamiteEntity entity = new DynamiteEntity(ForgeItems.DYNAMITE_TYPE.get(), level);
+        entity.setPos(position.x(), position.y(), position.z());
+        return entity;
     }
 }

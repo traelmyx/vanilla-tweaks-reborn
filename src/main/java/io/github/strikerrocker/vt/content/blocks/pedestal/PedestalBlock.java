@@ -2,7 +2,6 @@ package io.github.strikerrocker.vt.content.blocks.pedestal;
 
 import io.github.strikerrocker.vt.content.BasePedestalBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -18,8 +17,8 @@ import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
-import net.neoforged.neoforge.network.NetworkHooks;
+import net.minecraft.world.ItemInteractionResult;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
 
@@ -34,42 +33,37 @@ public class PedestalBlock extends BasePedestalBlock implements SimpleWaterlogge
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+    protected ItemInteractionResult useItemOn(ItemStack heldItem, BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
         if (!worldIn.isClientSide()) {
-            ItemStack heldItem = player.getItemInHand(handIn);
             PedestalBlockEntity tile = getPedestalBE(worldIn, pos);
             if (!player.isCrouching()) {
-                tile.getCapability(Capabilities.ITEM_HANDLER).ifPresent(itemHandler -> {
-                    if (heldItem.isEmpty()) {
-                        ItemStack stack = itemHandler.extractItem(0, 64, false);
-                        player.setItemInHand(handIn, stack);
-                    } else {
-                        player.setItemInHand(handIn, itemHandler.insertItem(0, heldItem, false));
-                    }
-                });
+                IItemHandler itemHandler = tile.inventory;
+                if (heldItem.isEmpty()) {
+                    ItemStack stack = itemHandler.extractItem(0, 64, false);
+                    player.setItemInHand(handIn, stack);
+                } else {
+                    player.setItemInHand(handIn, itemHandler.insertItem(0, heldItem, false));
+                }
                 tile.setChanged();
-                return InteractionResult.SUCCESS;
             } else {
-                NetworkHooks.openScreen((ServerPlayer) player, new SimpleMenuProvider((id, playerInv, playerIn) -> new PedestalContainer(id, playerInv, pos), Component.translatable("block.vanillatweaks.pedestal")), data -> data.writeBlockPos(pos));
+                player.openMenu(new SimpleMenuProvider((id, playerInv, playerIn) -> new PedestalContainer(id, playerInv, pos), Component.translatable("block.vanillatweaks.pedestal")), data -> data.writeBlockPos(pos));
             }
         }
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
-
 
     @Override
     public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!worldIn.isClientSide()) {
-            PedestalBlockEntity tile = getPedestalBE(worldIn, pos);
-            tile.getCapability(Capabilities.ITEM_HANDLER, Direction.NORTH).ifPresent(itemHandler -> {
-                ItemStack stack = itemHandler.getStackInSlot(0);
+        if (!worldIn.isClientSide() && !state.is(newState.getBlock())) {
+            if (worldIn.getBlockEntity(pos) instanceof PedestalBlockEntity tile) {
+                ItemStack stack = tile.inventory.getStackInSlot(0);
                 if (!stack.isEmpty()) {
                     ItemEntity item = new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
                     worldIn.addFreshEntity(item);
                 }
-            });
-            worldIn.removeBlockEntity(pos);
+            }
         }
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Nullable

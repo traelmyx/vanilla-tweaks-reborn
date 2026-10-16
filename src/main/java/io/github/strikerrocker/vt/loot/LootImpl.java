@@ -1,5 +1,6 @@
 package io.github.strikerrocker.vt.loot;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.player.Player;
@@ -17,8 +18,7 @@ public class LootImpl {
         Level level = entity.level();
         if (config && !level.isClientSide() && level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT) && source instanceof Player && entity.hasCustomName()) {
             ItemStack nameTag = new ItemStack(Items.NAME_TAG);
-            nameTag.setHoverName(entity.getCustomName());
-            nameTag.getOrCreateTag().putInt("RepairCost", 0);
+            nameTag.set(DataComponents.CUSTOM_NAME, entity.getCustomName());
             entity.spawnAtLocation(nameTag);
             entity.setCustomName(null);
         }

@@ -1,5 +1,6 @@
 package io.github.strikerrocker.vt.content.blocks.pedestal;
 
+import net.minecraft.world.phys.AABB;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -24,5 +25,10 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         matrixStack.scale(scale, scale, scale);
         Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, light, overlay, matrixStack, vertexConsumers, Minecraft.getInstance().level, 0);
         matrixStack.popPose();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(PedestalBlockEntity blockEntity) {
+        return new AABB(blockEntity.getBlockPos()).expandTowards(0, 1, 0);
     }
 }

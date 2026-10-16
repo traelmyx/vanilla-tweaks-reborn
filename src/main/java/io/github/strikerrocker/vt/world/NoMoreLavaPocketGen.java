@@ -2,12 +2,12 @@ package io.github.strikerrocker.vt.world;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.strikerrocker.vt.VanillaTweaks;
 import io.github.strikerrocker.vt.base.ForgeFeature;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -25,12 +25,12 @@ import java.util.function.Supplier;
 
 public class NoMoreLavaPocketGen extends ForgeFeature {
     // Version of forge stock biome modifier with config
-    public static final DeferredRegister<Codec<? extends BiomeModifier>> BIOME_MODIFIER_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, VanillaTweaks.MOD_ID);
-    public static final Supplier<Codec<RemoveFeaturesBiomeModifier>> REMOVE_FEATURES_BIOME_MODIFIER_TYPE = BIOME_MODIFIER_SERIALIZERS.register("remove_features", () ->
-            RecordCodecBuilder.create(builder -> builder.group(
+    public static final DeferredRegister<MapCodec<? extends BiomeModifier>> BIOME_MODIFIER_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, VanillaTweaks.MOD_ID);
+    public static final Supplier<MapCodec<RemoveFeaturesBiomeModifier>> REMOVE_FEATURES_BIOME_MODIFIER_TYPE = BIOME_MODIFIER_SERIALIZERS.register("remove_features", () ->
+            RecordCodecBuilder.mapCodec(builder -> builder.group(
                     Biome.LIST_CODEC.fieldOf("biomes").forGetter(RemoveFeaturesBiomeModifier::biomes),
                     PlacedFeature.LIST_CODEC.fieldOf("features").forGetter(RemoveFeaturesBiomeModifier::features),
-                    new ExtraCodecs.EitherCodec<>(GenerationStep.Decoration.CODEC.listOf(), GenerationStep.Decoration.CODEC).xmap(
+                    Codec.either(GenerationStep.Decoration.CODEC.listOf(), GenerationStep.Decoration.CODEC).xmap(
                             either -> either.map(Set::copyOf, Set::of), // convert list/singleton to set when decoding
                             set -> set.size() == 1 ? Either.right(set.toArray(GenerationStep.Decoration[]::new)[0]) : Either.left(List.copyOf(set))
                     ).optionalFieldOf("steps", EnumSet.allOf(GenerationStep.Decoration.class)).forGetter(RemoveFeaturesBiomeModifier::steps)
@@ -60,7 +60,7 @@ public class NoMoreLavaPocketGen extends ForgeFeature {
         }
 
         @Override
-        public Codec<? extends BiomeModifier> codec() {
+        public MapCodec<? extends BiomeModifier> codec() {
             return REMOVE_FEATURES_BIOME_MODIFIER_TYPE.get();
         }
     }

@@ -3,7 +3,13 @@ package io.github.strikerrocker.vt.tweaks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -38,7 +44,7 @@ public class TweaksImpl {
         ItemStack playerItem = player.getItemBySlot(slot);
         ItemStack armorStandItem = armorStand.getItemBySlot(slot);
 
-        if (player.isCreative() || (!EnchantmentHelper.hasBindingCurse(playerItem) && !EnchantmentHelper.hasBindingCurse(armorStandItem))) {
+        if (player.isCreative() || (!EnchantmentHelper.has(playerItem, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) && !EnchantmentHelper.has(armorStandItem, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE))) {
             player.setItemSlot(slot, armorStandItem);
             armorStand.setItemSlot(slot, playerItem);
         }
@@ -80,13 +86,10 @@ public class TweaksImpl {
      * Shows the number of bees and honey level of bee hives
      */
     public static void addBeeHiveTooltip(ItemStack stack, List<Component> tooltips) {
-        CompoundTag tag = stack.getOrCreateTag();
-        CompoundTag beTag = tag.getCompound("BlockEntityTag");
-        ListTag bees = beTag.getList("Bees", 10);
-        CompoundTag blockStateTag = tag.getCompound("BlockStateTag");
-        String honeyLvl = blockStateTag.getString("honey_level");
+        List<BeehiveBlockEntity.Occupant> bees = stack.getOrDefault(DataComponents.BEES, List.of());
+        Integer honeyLvl = stack.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(BeehiveBlock.HONEY_LEVEL);
         tooltips.add(Component.translatable("vanillatweaks.bees").append(Component.literal(String.format("%d", bees.size()))));
-        tooltips.add(Component.translatable("vanillatweaks.honey.lvl").append(Component.literal(String.format("%s", honeyLvl))));
+        tooltips.add(Component.translatable("vanillatweaks.honey.lvl").append(Component.literal(String.format("%d", honeyLvl == null ? 0 : honeyLvl))));
     }
 
     /**
@@ -107,26 +110,26 @@ public class TweaksImpl {
                         if (player.hasCorrectToolForDrops(state))
                             block.playerDestroy(world, player, pos, state, world.getBlockEntity(pos), stack);
                         world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-                        world.playSound(player, player.blockPosition(), block.getSoundType(state).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
+                        world.playSound(player, player.blockPosition(), state.getSoundType(world, pos, player).getBreakSound(), SoundSource.BLOCKS, 1f, 1f);
                     }
                 }
             }
-            stack.hurtAndBreak(1, player, playerEntity -> playerEntity.broadcastBreakEvent(playerEntity.getUsedItemHand()));
+            stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         }
     }
 
     /**
      * Make the nametag item drop when right-clicked with a shear
      */
-    public static void triggerShearNametag(Player player, ItemStack stack, Entity target, Level world, boolean config) {
+    public static void triggerShearNametag(Player player, InteractionHand hand, ItemStack stack, Entity target, Level world, boolean config) {
         if (config && !stack.isEmpty() && stack.getItem() instanceof ShearsItem &&
                 target instanceof LivingEntity && target.hasCustomName() && !world.isClientSide) {
             target.playSound(SoundEvents.SHEEP_SHEAR, 1, 1);
-            ItemStack nameTag = new ItemStack(Items.NAME_TAG).setHoverName(target.getCustomName());
-            nameTag.getOrCreateTag().putInt("RepairCost", 0);
+            ItemStack nameTag = new ItemStack(Items.NAME_TAG);
+            nameTag.set(DataComponents.CUSTOM_NAME, target.getCustomName());
             target.spawnAtLocation(nameTag);
             target.setCustomName(null);
-            stack.hurtAndBreak(1, player, playerEntity -> playerEntity.broadcastBreakEvent(playerEntity.getUsedItemHand()));
+            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
         }
     }
 
@@ -164,7 +167,7 @@ public class TweaksImpl {
         if (player.isCrouching() && config && !player.level().isClientSide() && !player.isSpectator()
                 && target instanceof ArmorStand armorStand) {
             for (EquipmentSlot equipmentSlotType : EquipmentSlot.values()) {
-                if (equipmentSlotType.getType() == EquipmentSlot.Type.ARMOR) {
+                if (equipmentSlotType.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                     swapSlot(player, armorStand, equipmentSlotType);
                 }
             }
@@ -187,14 +190,14 @@ public class TweaksImpl {
                     if (itemStack.isDamageableItem()) {
                         itemStack.setDamageValue(itemStack.getDamageValue() + livingEntity.getRandom().nextInt(2));
                         if (itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
-                            livingEntity.broadcastBreakEvent(EquipmentSlot.HEAD);
+                            livingEntity.onEquippedItemBroken(itemStack.getItem(), EquipmentSlot.HEAD);
                             livingEntity.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
                         }
                     }
                     flag = false;
                 }
                 if (flag) {
-                    livingEntity.setSecondsOnFire(8);
+                    livingEntity.igniteForSeconds(8);
                 }
             }
         }
@@ -219,7 +222,7 @@ public class TweaksImpl {
      */
     public static void triggerSpawnerPlacement(Level level, BlockPos pos, ItemStack stack, boolean config) {
         if (!level.isClientSide() && config && !stack.isEmpty() && stack.getItem() == Items.SPAWNER) {
-            CompoundTag spawnerDataNBT = stack.getOrCreateTag().getCompound(SPAWNER_TAG);
+            CompoundTag spawnerDataNBT = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(SPAWNER_TAG);
             if (!spawnerDataNBT.isEmpty()) {
                 BlockEntity tile = level.getBlockEntity(pos);
                 if (tile instanceof SpawnerBlockEntity spawner) {
@@ -234,14 +237,14 @@ public class TweaksImpl {
      */
     public static boolean triggerSpawnerBreak(Level level, BlockPos pos, BlockState state, Player player, boolean config, boolean forge) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        int lvl = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, player.getMainHandItem());
+        int lvl = EnchantmentHelper.getItemEnchantmentLevel(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH), player.getMainHandItem());
         if (state.getBlock() instanceof SpawnerBlock && !level.isClientSide() && blockEntity instanceof SpawnerBlockEntity && config && lvl >= 1) {
             ItemStack drop = new ItemStack(Blocks.SPAWNER);
             CompoundTag spawnerData = ((SpawnerBlockEntity) blockEntity).getSpawner().save(new CompoundTag());
             CompoundTag stackTag = new CompoundTag();
             spawnerData.remove("Delay");
             stackTag.put(SPAWNER_TAG, spawnerData);
-            drop.setTag(stackTag);
+            drop.set(DataComponents.CUSTOM_DATA, CustomData.of(stackTag));
 
             Block.popResource(player.getCommandSenderWorld(), pos, drop);
             level.removeBlockEntity(pos);

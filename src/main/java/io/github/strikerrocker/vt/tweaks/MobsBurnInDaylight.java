@@ -4,7 +4,7 @@ import io.github.strikerrocker.vt.base.ForgeFeature;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 public class MobsBurnInDaylight extends ForgeFeature {
     private ModConfigSpec.BooleanValue babyZombieBurnInDaylight;
@@ -29,8 +29,8 @@ public class MobsBurnInDaylight extends ForgeFeature {
 
 
     @SubscribeEvent
-    public void onLivingUpdate(LivingEvent.LivingTickEvent event) {
-        LivingEntity entity = event.getEntity();
+    public void onLivingUpdate(EntityTickEvent.Pre event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
         TweaksImpl.triggerMobsBurnInSun(entity, creeperBurnInDaylight.get(), babyZombieBurnInDaylight.get());
     }
 }

@@ -44,10 +44,10 @@ public class DynamiteEntity extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(TICKS_WET, 0);
-        entityData.define(TICKS_SINCE_WET, WET_TICKS);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(TICKS_WET, 0);
+        builder.define(TICKS_SINCE_WET, WET_TICKS);
     }
 
     @Override

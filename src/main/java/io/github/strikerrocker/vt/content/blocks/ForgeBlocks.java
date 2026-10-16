@@ -3,7 +3,6 @@ package io.github.strikerrocker.vt.content.blocks;
 import io.github.strikerrocker.vt.base.ForgeFeature;
 import io.github.strikerrocker.vt.content.CommonObjects;
 import io.github.strikerrocker.vt.content.blocks.pedestal.*;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -12,7 +11,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -71,13 +73,26 @@ public class ForgeBlocks extends ForgeFeature {
             event.setBurnTime(400);
     }
 
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+    public static class ModBusEvents {
+
+        @SubscribeEvent
+        public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, PEDESTAL_TYPE.get(), (pedestal, side) -> pedestal.inventory);
+        }
+    }
+
+    @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModBusEvents {
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            MenuScreens.register(PEDESTAL_MENU_TYPE.get(), PedestalScreen::new);
             event.registerBlockEntityRenderer(PEDESTAL_TYPE.get(), PedestalRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerScreens(RegisterMenuScreensEvent event) {
+            event.register(PEDESTAL_MENU_TYPE.get(), PedestalScreen::new);
         }
     }
 
