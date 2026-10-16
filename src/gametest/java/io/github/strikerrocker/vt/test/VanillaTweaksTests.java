@@ -168,6 +168,7 @@ public class VanillaTweaksTests {
     public static void veteranPullsExperience(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setItemSlot(EquipmentSlot.HEAD, enchanted(helper, new ItemStack(Items.IRON_HELMET), EnchantmentInit.VETERAN, 1));
+        player.moveTo(helper.absoluteVec(new Vec3(1.5, 2, 1.5)));
         Vec3 at = player.position();
         ExperienceOrb orb = new ExperienceOrb(helper.getLevel(), at.x + 12, at.y + 1, at.z, 5);
         orb.setNoGravity(true);
@@ -311,6 +312,7 @@ public class VanillaTweaksTests {
     public static void armorStandSwapAndFrameReverse(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setShiftKeyDown(true);
+        player.setPose(net.minecraft.world.entity.Pose.CROUCHING);
         player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.IRON_HELMET));
         ArmorStand stand = helper.spawn(EntityType.ARMOR_STAND, new BlockPos(1, 2, 1));
         stand.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE));
