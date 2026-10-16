@@ -3,8 +3,6 @@ package io.github.strikerrocker.vt.tweaks;
 import io.github.strikerrocker.vt.base.ForgeFeature;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.BeehiveBlock;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -27,7 +25,6 @@ public class BeehiveTooltips extends ForgeFeature {
     }
 
     @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
     public void onToolTipEvent(ItemTooltipEvent event) {
         if (event.getFlags().isAdvanced() && enableBeehiveTooltips.get() &&
                 event.getItemStack().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof BeehiveBlock) {
