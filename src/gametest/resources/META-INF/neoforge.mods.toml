@@ -1,0 +1,15 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "vanillatweaks_gametest"
+version = "${version}"
+displayName = "Vanilla Tweaks Reborn Tests"
+
+[[dependencies.vanillatweaks_gametest]]
+modId = "vanillatweaks"
+type = "required"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"

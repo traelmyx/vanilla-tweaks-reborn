@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:enchantment",
+      "object": "blazing"
+    }
+  ],
   "type": "vanillatweaks:blazing",
   "conditions": [
     {

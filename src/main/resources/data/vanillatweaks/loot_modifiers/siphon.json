@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "vanillatweaks:enchantment",
+      "object": "siphon"
+    }
+  ],
   "type": "vanillatweaks:siphon",
   "conditions": [
     {
